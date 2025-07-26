@@ -34,22 +34,22 @@ class Food(Base):
 
     animal: Mapped["Animal"] = relationship(back_populates="food")
 
-# with Session(connection) as session:
-#     dog = Animal(
-#         name="Dog",
-#         food=Food(name="Bone")
-#     )
+with Session(connection) as session:
+    dog = Animal(
+        name="Dog",
+        food=Food(name="Bone")
+    )
 
-#     bird = Animal(
-#         name="Bird",
-#         food=Food(name="Seed")
-#     )
+    bird = Animal(
+        name="Bird",
+        food=Food(name="Seed")
+    )
 
-#     chicken = Animal(name="Chicken")
+    chicken = Animal(name="Chicken")
 
-#     session.add_all([dog, bird, chicken])
+    session.add_all([dog, bird, chicken])
 
-#     session.commit()
+    session.commit()
 
 from sqlalchemy import select
 
