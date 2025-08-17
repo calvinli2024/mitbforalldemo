@@ -14,9 +14,7 @@ def index():
 @app.post("/form") 
 async def form(request: Request):
     async with request.form() as form:
-        print(form)
-
-    return templates.TemplateResponse(
-        "echo.html",
-        context={"comment": form['comment'], "request": request}
-    )
+        return templates.TemplateResponse(
+            "echo.html",
+            context={"comment": form['comment'], "request": request}
+        )
