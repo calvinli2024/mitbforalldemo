@@ -1,13 +1,14 @@
-import os
-import asyncio
 from google.adk.sessions import InMemorySessionService
-from google.adk.runners import InMemoryRunner
+from google.adk.runners import InMemoryRunner, Runner
 from google.genai import types
 from google.adk.agents import Agent
+from dotenv import load_dotenv
+
+load_dotenv(".env", override=True)
 
 async def call_agent_async(
     query: str, 
-    runner: InMemoryRunner, 
+    runner: Runner, 
     user_id: str, 
     session_id: str
 ) -> str:
@@ -18,7 +19,7 @@ async def call_agent_async(
     # Key Concept: run_async executes the agent logic and yields Events.
     # We iterate through events to find the final answer.
     async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=content):
-        # print(f"  [Event] Author: {event.author}, Type: {type(event).__name__}, Final: {event.is_final_response()}, Content: {event.content}")
+        print(f"  [Event] Author: {event.author}, Type: {type(event).__name__}, Final: {event.is_final_response()}, Content: {event.content}")
 
         if event.is_final_response():
             if event.content and event.content.parts:
@@ -45,7 +46,7 @@ async def run_conversation(pokemon_team_agent: Agent):
         session_id=session_id
     )
 
-    runner_agent_team = InMemoryRunner(
+    runner_agent_team = Runner(
         agent=pokemon_team_agent,
         app_name=app_name,
         session_service=session_service
