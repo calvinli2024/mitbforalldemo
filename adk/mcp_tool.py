@@ -22,12 +22,13 @@ async def get_pokemon_name(id: int) -> str:
         if id < 1 or id > 9999:
             raise Exception("ID must be between 1 and 9999, inclusive.")
 
-        response = await get(f"https://pokeapi.co/api/v2/pokemon/{id}")
+        response = get(f"https://pokeapi.co/api/v2/pokemon/{id}")
 
         data = response.json()
 
         return data['name']
     except Exception as e:
+        print(e)
         logging.error(e)
 
 if __name__ == "__main__":
