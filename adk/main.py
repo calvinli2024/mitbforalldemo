@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv(".env", override=True)
 
 warnings.filterwarnings("ignore")
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == "__main__":
     pokemon_name_agent = create_pokemon_name_agent()

@@ -17,9 +17,8 @@ llm = LiteLlm(model="openai/qwen3:8b")
 
 def create_pokemon_name_agent():
     pokemon_name_agent_instruction = """
-    You are a helpful pokemon search agent. 
-    When the user asks for a pokemon, pick a random number from 1 to 9999 (inclusive),
-    and use the `get_pokemon_name` tool to get the pokemon's name.
+    You are a helpful pokemon name search agent. 
+    When the user asks for a pokemon, pick a random number from 1 to 9999 (inclusive), and use the `get_pokemon_name` tool to get the pokemon's name.
     If the tool has an error, politely tell the user 'Tool encountered error'.
     If the tool was successful, return the pokemon name directly.
     """
@@ -46,7 +45,7 @@ def create_pokemon_team_agent(pokemon_name_agent: Agent):
     pokemon_team_agent_instruction = """
     You are the main agent responsible for building pokemon teams. 
     Your sole responsibility is to create a team of six pokemon.
-    You have a specialized sub-agent named 'pokemon_name_agent', that handles retrieving a pokemon. Delegate to it whenever you need a pokemon.
+    You have a specialized sub-agent named 'pokemon_name_agent', that handles retrieving a pokemon. Delegate to it to choose pokemon.
     You must use the 'pokemon_name_agent' sub agent to retrieve pokemon names, don't use your own memory.
     Analyze the user's request, only answer it if it is a request for constructing a pokemon team. If it's any other request, politely decline.
     """
