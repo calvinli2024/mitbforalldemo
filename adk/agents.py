@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from google.adk.agents import Agent
 from google.adk.models.lite_llm import LiteLlm
+from google.adk.tools import agent_tool
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
 from mcp import StdioServerParameters
@@ -15,45 +16,76 @@ load_dotenv('.env', override=True)
 #Ollama server running in background
 llm = LiteLlm(model="openai/qwen3:8b")
 
-def create_pokemon_name_agent():
-    pokemon_name_agent_instruction = """
-    You are a helpful pokemon name search agent. 
-    When the user asks for a pokemon, pick a random number from 1 to 9999 (inclusive), and use the `get_pokemon_name` tool to get the pokemon's name.
-    If the tool has an error, politely tell the user 'Tool encountered error'.
-    If the tool was successful, return the pokemon name directly.
+def create_get_pokemon_agent():
+    get_pokemon_agent_instruction = """
+    Your ONLY responsibility is to return six random pokemon name from your own memory.
+    Return only the pokemon names, do not engage in any other tasks or conversations.
+    Never return a blank response.
     """
 
-    return Agent(
-        name="pokemon_name_agent",
+    # Apparently there's a bug where sub-agents in ADK have a hard time calling tools
+    # https://github.com/google/adk-python/issues/53
+
+    def get_pokemon() -> str:
+        """Get a pokemon
+
+        Returns:
+            str: pokemon's name
+        """
+
+        return "Steelix"
+
+    agent = Agent(
+        name="get_pokemon_agent",
         model=llm, 
-        description="Retrieves a random pokemon for the user using the `get_pokemon_name` tool",
-        instruction=pokemon_name_agent_instruction,
+        description="Retrieves six random pokemon.",
+        instruction=get_pokemon_agent_instruction
+    )
+
+    # MCPToolset(
+    #     connection_params=StdioConnectionParams(
+    #         server_params=StdioServerParameters(
+    #             command='python',
+    #             args=['mcp_tool.py'],
+    #         ),
+    #     ),
+    #     tool_filter=['get_pokemon']
+    # )
+
+    print("Created `get_pokemon_agent`")
+
+    return agent
+
+def create_pokemon_team_agent():
+    get_pokemon_agent = create_get_pokemon_agent()
+
+    pokemon_team_agent_instruction = """ 
+    Create a team of six pokemon using the 'get_pokemon_agent'.
+    You have a specialized sub-agent named 'get_pokemon_agent' that handles choosing pokemon. 
+    Delegate to the 'get_pokemon_agent' with a request to retrieve six pokemon.
+    Analyze the user's request, only answer it if it is a request for constructing a pokemon team. If it's any other request, politely decline.
+    Only reply with the final team of six pokemon. Do not include any extra commentary in your response.
+    Don't return the following example output, it's just a reference.
+
+    # Example Output
+    1. Golbat
+    2. Pikachu
+    3. Charizard
+    4. Ditto
+    5. Bulbasaur
+    6. Caterpie
+    """
+    
+    agent = Agent(
+        name="pokemon_team_agent",
+        model=llm,
+        description="The main coordinator agent. Handles building pokemon teams consisting of six pokemon, and delegates pokemon selection to sub agents.",
+        instruction=pokemon_team_agent_instruction,
         tools=[
-            MCPToolset(
-                connection_params=StdioConnectionParams(
-                    server_params=StdioServerParameters(
-                        command='python',
-                        args=['mcp_tool.py'],
-                    ),
-                ),
-                tool_filter=['get_pokemon_name']
-            )
+            agent_tool.AgentTool(agent=get_pokemon_agent)
         ]
     )
 
-def create_pokemon_team_agent(pokemon_name_agent: Agent):
-    pokemon_team_agent_instruction = """
-    You are the main agent responsible for building pokemon teams. 
-    Your sole responsibility is to create a team of six pokemon.
-    You have a specialized sub-agent named 'pokemon_name_agent', that handles retrieving a pokemon. Delegate to it to choose pokemon.
-    You must use the 'pokemon_name_agent' sub agent to retrieve pokemon names, don't use your own memory.
-    Analyze the user's request, only answer it if it is a request for constructing a pokemon team. If it's any other request, politely decline.
-    """
+    print("Created `pokemon_team_agent`")
 
-    return Agent(
-        name="pokemon_team_agent",
-        model=llm,
-        description="The main coordinator agent. Handles building pokemon teams consisting of six pokemon, and delegates pokemon selection to child agents.",
-        instruction=pokemon_team_agent_instruction,
-        sub_agents=[pokemon_name_agent]
-    )
+    return agent

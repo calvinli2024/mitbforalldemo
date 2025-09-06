@@ -1,4 +1,4 @@
-from agents import create_pokemon_name_agent, create_pokemon_team_agent
+from agents import create_pokemon_team_agent
 from runner import run_conversation
 import warnings
 import logging
@@ -11,20 +11,11 @@ warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == "__main__":
-    pokemon_name_agent = create_pokemon_name_agent()
-
-    print()
-    print("Created `pokemon_name_agent`")
-
-    pokemon_team_agent = create_pokemon_team_agent(pokemon_name_agent)
+    pokemon_team_agent = create_pokemon_team_agent()
     
-    print()
-    print("Created `pokemon_team_agent`")
-    
-    print()
     print("Running conversation")
 
-    pokemon_team = asyncio.run(run_conversation(pokemon_team_agent))
+    pokemon_team = asyncio.run(run_conversation(pokemon_team_agent), debug=True)
 
     print()
     print(f"Pokemon team: {pokemon_team}")
