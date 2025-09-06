@@ -26,23 +26,16 @@ def create_get_pokemon_agent():
     # Apparently there's a bug where sub-agents in ADK have a hard time calling tools
     # https://github.com/google/adk-python/issues/53
 
-    def get_pokemon() -> str:
-        """Get a pokemon
+    # def get_pokemon() -> str:
+    #     """Get a pokemon
 
-        Returns:
-            str: pokemon's name
-        """
+    #     Returns:
+    #         str: pokemon's name
+    #     """
 
-        return "Steelix"
-
-    agent = Agent(
-        name="get_pokemon_agent",
-        model=llm, 
-        description="Retrieves six random pokemon.",
-        instruction=get_pokemon_agent_instruction
-    )
-
-    # MCPToolset(
+    #     return "Steelix"
+    
+    # toolset = MCPToolset(
     #     connection_params=StdioConnectionParams(
     #         server_params=StdioServerParameters(
     #             command='python',
@@ -51,6 +44,13 @@ def create_get_pokemon_agent():
     #     ),
     #     tool_filter=['get_pokemon']
     # )
+
+    agent = Agent(
+        name="get_pokemon_agent",
+        model=llm, 
+        description="Retrieves six random pokemon.",
+        instruction=get_pokemon_agent_instruction
+    )
 
     print("Created `get_pokemon_agent`")
 

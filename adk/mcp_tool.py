@@ -28,6 +28,6 @@ async def get_pokemon() -> str:
             f.write(e)
 
 if __name__ == "__main__":
-    # print("Starting Pokemon MCP server")
+    print("Starting Pokemon MCP server")
 
     mcp.run(transport='stdio')
