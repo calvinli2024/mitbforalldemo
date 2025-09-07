@@ -1,7 +1,9 @@
 # Google Agent Development Kit Demo
 
-Install Ollama: https://ollama.com/
+1. Install Ollama: https://ollama.com/
 
-Use gemma3 1B: https://ollama.com/library/gemma3:1b
+2. Use `qwen3:8b`: https://ollama.com/library/qwen3:8b
+    - `$ ollama pull qwen3:8b`
+    - `qwen3:8b` is the smallest tool-calling model I found that can fit on a CPU-only machine. Feel free to substitute any other larger tool-calling models if you have the hardware.
 
-Run `$ uv run main.py`
+3. Run `$ uv run main.py`
