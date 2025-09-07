@@ -3,6 +3,7 @@ from google.adk.runners import InMemoryRunner, Runner
 from google.genai import types
 from google.adk.agents import Agent
 from dotenv import load_dotenv
+import os
 
 load_dotenv(".env", override=True)
 
@@ -18,8 +19,11 @@ async def call_agent_async(
 
     # Key Concept: run_async executes the agent logic and yields Events.
     # We iterate through events to find the final answer.
+
+    debug = os.environ.get("DEBUG", 'false') == 'true'
     async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=content):
-        print(f"  [Event] Author: {event.author}, Type: {type(event).__name__}, Final: {event.is_final_response()}, Content: {event.content}")
+        if debug:
+            print(f"  [Event] Author: {event.author}, Type: {type(event).__name__}, Final: {event.is_final_response()}, Content: {event.content}")
 
         if event.is_final_response():
             if event.content and event.content.parts:
@@ -29,7 +33,8 @@ async def call_agent_async(
 
             break
 
-    print(f"Final response: {final_response_text}")
+    if debug:
+        print(f"Pokemon team: {final_response_text}")
 
     return final_response_text
 

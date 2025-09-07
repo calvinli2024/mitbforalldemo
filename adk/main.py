@@ -15,7 +15,7 @@ if __name__ == "__main__":
     
     print("Running conversation")
 
-    pokemon_team = asyncio.run(run_conversation(pokemon_team_agent), debug=True)
+    pokemon_team = asyncio.run(run_conversation(pokemon_team_agent))
 
     print()
     print(f"Pokemon team: {pokemon_team}")

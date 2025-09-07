@@ -18,32 +18,16 @@ llm = LiteLlm(model="openai/qwen3:8b")
 
 def create_get_pokemon_agent():
     get_pokemon_agent_instruction = """
-    Your ONLY responsibility is to return six random pokemon name from your own memory.
-    Return only the pokemon names, do not engage in any other tasks or conversations.
-    Never return a blank response.
+        Your ONLY responsibility is to return six random pokemon name from your own memory.
+        The pokemon can be from any generation, not just the first generation.
+        Return only the pokemon names, do not engage in any other tasks or conversations.
+        Never return a blank response.
     """
 
-    # Apparently there's a bug where sub-agents in ADK have a hard time calling tools
+    # Apparently there's bugs in ADK that cause sub-agents to have a hard time calling tools
+    # As such, the 'get_pokemon_type' tool will be passed to the parent agent instead
     # https://github.com/google/adk-python/issues/53
-
-    # def get_pokemon() -> str:
-    #     """Get a pokemon
-
-    #     Returns:
-    #         str: pokemon's name
-    #     """
-
-    #     return "Steelix"
-    
-    # toolset = MCPToolset(
-    #     connection_params=StdioConnectionParams(
-    #         server_params=StdioServerParameters(
-    #             command='python',
-    #             args=['mcp_tool.py'],
-    #         ),
-    #     ),
-    #     tool_filter=['get_pokemon']
-    # )
+    # https://github.com/google/adk-python/issues/2839
 
     agent = Agent(
         name="get_pokemon_agent",
@@ -59,30 +43,48 @@ def create_get_pokemon_agent():
 def create_pokemon_team_agent():
     get_pokemon_agent = create_get_pokemon_agent()
 
-    pokemon_team_agent_instruction = """ 
-    Create a team of six pokemon using the 'get_pokemon_agent'.
-    You have a specialized sub-agent named 'get_pokemon_agent' that handles choosing pokemon. 
-    Delegate to the 'get_pokemon_agent' with a request to retrieve six pokemon.
-    Analyze the user's request, only answer it if it is a request for constructing a pokemon team. If it's any other request, politely decline.
-    Only reply with the final team of six pokemon. Do not include any extra commentary in your response.
-    Don't return the following example output, it's just a reference.
+    pokemon_team_agent_instruction = """
+        Create a team of six pokemon using the 'get_pokemon_agent'.
+        You have a specialized sub-agent named 'get_pokemon_agent' that handles choosing pokemon.
+        Delegate to the 'get_pokemon_agent' with a request to retrieve six pokemon.
+        Once you receive the six pokemon, use the 'get_pokemon_type' tool to retrieve each pokemon's type.
+        Analyze the user's request, only answer it if it is a request for constructing a pokemon team. If it's any other request, politely decline.
+        Only reply with the final team of six pokemon and their types. Do not include any extra commentary in your response.
+        Don't return the following example output, it's just a reference.
 
-    # Example Output
-    1. Golbat
-    2. Pikachu
-    3. Charizard
-    4. Ditto
-    5. Bulbasaur
-    6. Caterpie
+        # Example Output
+        1. Golbat (Poison)
+        2. Pikachu (Electric)
+        3. Charizard (Fire/Flying)
+        4. Ditto (Normal)
+        5. Bulbasaur (Grass)
+        6. Caterpie (Bug)
     """
     
+    description = """
+        The main coordinator agent. 
+        Handles building pokemon teams consisting of six pokemon, and delegates pokemon selection to sub agents. 
+        Uses the 'get_pokemon_type' tool to get the pokemon type.
+    """
+
+    toolset = MCPToolset(
+        connection_params=StdioConnectionParams(
+            server_params=StdioServerParameters(
+                command='python',
+                args=['mcp_tool.py'],
+            ),
+        ),
+        tool_filter=['get_pokemon_type']
+    )
+
     agent = Agent(
         name="pokemon_team_agent",
         model=llm,
-        description="The main coordinator agent. Handles building pokemon teams consisting of six pokemon, and delegates pokemon selection to sub agents.",
+        description=description,
         instruction=pokemon_team_agent_instruction,
         tools=[
-            agent_tool.AgentTool(agent=get_pokemon_agent)
+            agent_tool.AgentTool(agent=get_pokemon_agent),
+            toolset
         ]
     )
 
