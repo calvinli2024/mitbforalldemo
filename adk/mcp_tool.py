@@ -1,7 +1,5 @@
-from typing import Any
 from mcp.server.fastmcp import FastMCP
 import aiohttp
-import random
 import traceback
 
 mcp = FastMCP("pokemon_type")
@@ -28,6 +26,4 @@ async def get_pokemon_type(pokemon_name: str) -> str:
             f.write(traceback.format_exception(e))
 
 if __name__ == "__main__":
-    print("Starting Pokemon MCP server")
-
     mcp.run(transport='stdio')
