@@ -33,6 +33,8 @@ async def call_agent_async(
 
             break
 
+    await runner.close()
+
     if debug:
         print(f"Pokemon team: {final_response_text}")
 
