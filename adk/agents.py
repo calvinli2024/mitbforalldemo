@@ -16,6 +16,11 @@ load_dotenv('.env', override=True)
 #Ollama server running in background
 llm = LiteLlm(model="openai/qwen3:8b")
 
+# Apparently there's bugs in ADK that cause sub-agents to have a hard time calling tools
+# As such, the 'get_pokemon_type' tool will be passed to the parent agent instead
+# https://github.com/google/adk-python/issues/53
+# https://github.com/google/adk-python/issues/2839
+
 def create_get_pokemon_agent():
     get_pokemon_agent_instruction = """
         Your ONLY responsibility is to return six random pokemon name from your own memory.
@@ -23,11 +28,6 @@ def create_get_pokemon_agent():
         Return only the pokemon names, do not engage in any other tasks or conversations.
         Never return a blank response.
     """
-
-    # Apparently there's bugs in ADK that cause sub-agents to have a hard time calling tools
-    # As such, the 'get_pokemon_type' tool will be passed to the parent agent instead
-    # https://github.com/google/adk-python/issues/53
-    # https://github.com/google/adk-python/issues/2839
 
     agent = Agent(
         name="get_pokemon_agent",
