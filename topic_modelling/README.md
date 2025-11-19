@@ -2,7 +2,7 @@
 
 The purpose of this demo is to demonstrate topic modelling with [BERTopic](https://maartengr.github.io/BERTopic/index.html)
 
-Run `uv sync` and then `source .venv/bin/activate` to add all necessary packages.
+Run `uv sync` and then `source .venv/bin/activate` to add all necessary packages and activate the virtual environment.
 
 To get the Jupyter notebook in VS Code to use the virtual environment, you must run `code .` in this directory with the virtual environment active.
 
