@@ -1,6 +1,6 @@
 # Topic Modelling
 
-The purpose of demo is to demonstrate topic modelling with [BERTopic](https://maartengr.github.io/BERTopic/index.html)
+The purpose of this demo is to demonstrate topic modelling with [BERTopic](https://maartengr.github.io/BERTopic/index.html)
 
 Run `uv sync` and then `source .venv/bin/activate` to add all necessary packages.
 
